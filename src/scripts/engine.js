@@ -75,7 +75,80 @@ async function createCardImage(idCard, fieldSlide){
         cardImage.addEventListener("click",()=>{
             setCardsField(cardImage.getAttribute("data-id"));
         });
-        return cardImage;
+     
     }
+    return cardImage;
 
 }
+async function removeAllCardsImages(){
+    let{computerBox, player1BOX} = state.playerSides;
+    let imgElements = computerBox.querySelectorAll("img");
+    imgElements.forEach((img)=>img.remove());
+
+    imgElements = player1BOX.querySelectorAll("img");
+    imgElements.forEach((img)=>img.remove());
+}
+async function setCardsField(cardId){
+    await removeAllCardsImages();
+
+    let computerCardId = await getRandomCardId();
+
+    await showHiddenCardFieldsImages(true);
+    await hiddenCardDetails();
+    await drawCardsInfield(cardId, computerCardId);
+
+    let duelResults = await checkDuelResults(cardId, computerCardId);
+
+    await updateScore();
+    await drawButton(duelResults);
+}
+
+async function drawCardsInfield(cardId, computerCardId){
+state.fieldCards.player.src = cardData[cardId].img;
+state.fieldCards.comouter.src = cardData[computerCardId].img;
+}
+
+async function showHiddenCardFieldsImages(value) {
+    if (value === true) {
+        state.fieldCards.player.style.display = "block";
+    state.fieldCards.computer.style.display = "block";
+    }
+    if (value === false) {
+        state.fieldCards.player.style.display = "none";
+        state.fieldCards.computer.style.display = "none";
+    }
+}
+
+async function hiddenCardDetails() {
+    state.cardSprities.avatar.src ="";
+    state.cardSprities.nome.innerText ="";
+    state.cardSprities.type.innerText ="";
+}
+
+async function updateScore(){
+    state.score.scoreBox.innerHTML = `YOU WIN : ${state.score.playerScore} ! YOU LOSE : 
+    ${state.score.computerScore}`; 
+}
+
+async function drawButton(text) {
+    state.actions.button.innerText = text.toUpperCase();
+    state.actions.button.style.display = "block";
+}
+
+async function checkDuelResults(playerCardId, computerCardId) {
+    let duelResults = "DRAW";
+    let playerCard = cardData[playerCardId];
+
+    if (playerCard.winOf.includes(computerCardId)) {
+        duelResults = "YOU WIN";
+        await playAudio(duelResults);
+        state.score.playerScore++;
+    }
+
+    if (playerCard.loseOf.includes(computerCardId)) {
+        duelResults = "you lose";
+        await playAudio(duelResults);
+        state.score.computerScore++;
+    }
+}
+
