@@ -133,7 +133,7 @@ const state = {
       state.fieldCards.computer.style.display = "none";
     }
   }
-  
+    
   async function hiddenCardDetails() {
     state.cardSprites.avatar.src = "";
     state.cardSprites.name.innerText = "";
